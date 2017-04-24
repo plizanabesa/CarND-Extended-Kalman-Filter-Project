@@ -40,6 +40,30 @@ FusionEKF::FusionEKF() {
         0, 0, 0, 0,
         0, 0, 0, 0,
 
+  //state covariance matrix P
+  ekf_.P_ = MatrixXd(4, 4);
+  ekf_.P_ << 1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1000, 0,
+        0, 0, 0, 1000;
+
+  //measurement covariance
+  ekf_.R_ = MatrixXd(2, 2);
+  ekf_.R_ << 0.0225, 0,
+        0, 0.0225;
+
+  //measurement matrix
+  ekf_.H_ = MatrixXd(2, 4);
+  ekf_.H_ << 1, 0, 0, 0,
+        0, 1, 0, 0;
+
+  //the initial transition matrix F_
+  ekf_.F_ = MatrixXd(4, 4);
+  ekf_.F_ << 1, 0, 1, 0,
+        0, 1, 0, 1,
+        0, 0, 1, 0,
+        0, 0, 0, 1;
+
   //set the acceleration noise components
   noise_ax = 9;
   noise_ay = 9;
@@ -61,27 +85,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
-
-    //state covariance matrix P
-    ekf_.P_ = MatrixXd(4, 4);
-    ekf_.P_ << 1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1000, 0,
-          0, 0, 0, 1000;
-
-    //the initial transition matrix F_
-    ekf_.F_ = MatrixXd(4, 4);
-    ekf_.F_ << 1, 0, 1, 0,
-          0, 1, 0, 1,
-          0, 0, 1, 0,
-          0, 0, 0, 1;
-
-    //process covariance matrix Q
-    ekf_.Q_ = MatrixXd(4, 4);
-    ekf_.Q_ <<  0, 0, 0, 0,
-           0, 0, 0,0,
-           0, 0, 0, 0,
-           0, 0, 0, 0;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       float ro = measurement_pack.raw_measurements_(0);
