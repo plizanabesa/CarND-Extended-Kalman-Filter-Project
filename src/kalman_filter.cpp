@@ -1,9 +1,12 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 #include "kalman_filter.h"
+#include "tools.h"
 
+using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using std::vector;
 
 KalmanFilter::KalmanFilter() {}
 
@@ -49,13 +52,13 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float vy = x_(3);
   float h1 = sqrt(pow(px, 2) + pow(py, 2));
   float h2 = atan(py/px);
-  float h3 = (px*vx + py*vy) / first;
+  float h3 = (px*vx + py*vy) / h1;
   VectorXd Hx = VectorXd(3);
   Hx << h1, h2, h3;
 
   //y vector
   VectorXd y = z - Hx;
-  std::cout << "phi:" << y(1) << std::endl;
+  //std::cout << "phi:" << y(1) << std::endl;
   while(y(1)>M_PI || y(1)<M_PI){
     if(y(1)>M_PI){
       y(1)=y(1)-2*M_PI;
@@ -63,7 +66,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     else{
       y(1)=y(1)+2*M_PI;
     }
-    std::cout << "phi angle normalized" << std::endl;
+    //std::cout << "phi angle normalized" << std::endl;
   }
 
   //Hj matrix

@@ -32,13 +32,13 @@ FusionEKF::FusionEKF() {
         0, 0, 0.09;
 
   //measurement matrix - laser
-  H_laser << 1, 0, 0, 0,
+  H_laser_ << 1, 0, 0, 0,
         0, 1, 0, 0;
 
   //measurement matrix - radar
-  Hj_ = << 0, 0, 0, 0,
+  Hj_ << 0, 0, 0, 0,
         0, 0, 0, 0,
-        0, 0, 0, 0,
+        0, 0, 0, 0;
 
   //state covariance matrix P
   ekf_.P_ = MatrixXd(4, 4);
@@ -63,10 +63,6 @@ FusionEKF::FusionEKF() {
         0, 1, 0, 1,
         0, 0, 1, 0,
         0, 0, 0, 1;
-
-  //set the acceleration noise components
-  noise_ax = 9;
-  noise_ay = 9;
 }
 
 /**
@@ -130,6 +126,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   //Modify the F matrix so that the time is integrated
   ekf_.F_(0, 2) = dt;
   ekf_.F_(1, 3) = dt;
+
+  //set the acceleration noise components
+  float noise_ax = 9;
+  float noise_ay = 9;
 
   //set the process covariance matrix Q
   ekf_.Q_ = MatrixXd(4, 4);
