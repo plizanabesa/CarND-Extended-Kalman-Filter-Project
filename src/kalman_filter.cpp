@@ -60,12 +60,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   //y vector
   VectorXd y = z - Hx;
-  std::cout << "phi:" << y(1) << std::endl;
+  //std::cout << "phi:" << y(1) << std::endl;
 
   if (fabs(y(1)) > M_PI){
-    std::cout << "phi before normalization:" << y(1) << std::endl;
+    //std::cout << "phi before normalization:" << y(1) << std::endl;
     y(1) -= round(y(1) / (2.0 * M_PI)) * (2.0 * M_PI);
-    std::cout << "phi angle normalized:" << y(1) << std::endl;
+    //std::cout << "phi angle normalized:" << y(1) << std::endl;
   }
 
   /*
@@ -82,8 +82,6 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   //S and K matrices
   MatrixXd Ht = H_.transpose();
-  std::cout << H_ << std::endl;
-  std::cout << P_ << std::endl;
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();
   MatrixXd PHt = P_ * Ht;

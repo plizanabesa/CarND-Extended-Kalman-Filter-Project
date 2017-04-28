@@ -86,7 +86,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    ****************************************************************************/
   if (!is_initialized_) {
     // first measurement
-    cout << "EKF: " << endl;
+    //cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
 
@@ -173,7 +173,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.Update(z);
   }
 
+  /*
   // print the output
   cout << "x_ = " << ekf_.x_ << endl;
-  cout << "P_ = " << ekf_.P_ << endl;
+  cout << "P_ = " << ekf_.P_ << endl;*/
 }
