@@ -41,28 +41,36 @@ FusionEKF::FusionEKF() {
         0, 0, 0, 0;
 
   //state covariance matrix P
-  ekf_.P_ = MatrixXd(4, 4);
-  ekf_.P_ << 1, 0, 0, 0,
+  MatrixXd P_ = MatrixXd(4, 4);
+  P_ << 1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1000, 0,
         0, 0, 0, 1000;
 
-  //measurement covariance
-  ekf_.R_ = MatrixXd(2, 2);
-  ekf_.R_ << 0.0225, 0,
-        0, 0.0225;
-
+  //state covariance matrix P
+  MatrixXd Q_ = MatrixXd(4, 4);
+  Q_ << 0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0;
+    
   //measurement matrix
-  ekf_.H_ = MatrixXd(2, 4);
-  ekf_.H_ << 1, 0, 0, 0,
+  MatrixXd H_ = MatrixXd(2, 4);
+  H_ << 1, 0, 0, 0,
         0, 1, 0, 0;
 
   //the initial transition matrix F_
-  ekf_.F_ = MatrixXd(4, 4);
-  ekf_.F_ << 1, 0, 1, 0,
+  MatrixXd F_ = MatrixXd(4, 4);
+  F_ << 1, 0, 1, 0,
         0, 1, 0, 1,
         0, 0, 1, 0,
         0, 0, 0, 1;
+    
+  //state vector
+  VectorXd x_ = VectorXd(4);
+    
+  //initialize EKF
+  ekf_.Init(x_,P_,F_,H_,R_laser_,Q_);
 }
 
 /**
@@ -144,10 +152,25 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    *  Update
    ****************************************************************************/
 
+  VectorXd z;
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-    ekf_.UpdateEKF(measurement_pack.raw_measurements_);
-  } else {
-    ekf_.Update(measurement_pack.raw_measurements_);
+    Hj_ = tools.CalculateJacobian(ekf_.x_);
+    ekf_.H_ = Hj_;
+    ekf_.R_ = R_radar_;
+    z = VectorXd(3);
+    float z0 = measurement_pack.raw_measurements_[0];
+    float z1 = measurement_pack.raw_measurements_[1];
+    float z2 = measurement_pack.raw_measurements_[2];
+    z << z0,z1,z2;
+    ekf_.UpdateEKF(z);
+  } else {      
+    ekf_.H_ = H_laser_;
+    ekf_.R_ = R_laser_;
+    z = VectorXd(2);
+    float z0 = measurement_pack.raw_measurements_[0];
+    float z1 = measurement_pack.raw_measurements_[1];
+    z << z0, z1;
+    ekf_.Update(z);
   }
 
   // print the output
